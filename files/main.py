@@ -91,3 +91,47 @@ else:
     print("The repository was not deleted")
     
 # %%
+# ------ This part asks the user to input the repository name, then asks the specific foder or file that they want to delete ------
+
+# asking the user to enter the repository name
+repo_name = input("Enter the repository name: ")
+
+# getting the response from the github api
+response = requests.get("https://api.github.com/repos/" + username + "/" + repo_name + "/contents", auth=(username, password))
+
+# getting the json data from the response
+json_data = response.json()
+
+# looping through the json data
+for data in json_data:
+    # getting the name of the file or folder
+    name = data["name"]
+    # getting the type of the file or folder
+    type = data["type"]
+
+    # checking if the type is file
+    if type == "file":
+        # printing the file name
+        print("File: " + name)
+    # checking if the type is dir
+    elif type == "dir":
+        # printing the folder name
+        print("Folder: " + name)
+
+# asking the user to enter the file or folder name
+file_folder_name = input("Enter the file or folder name: ")
+
+# getting the response from the github api
+response = requests.delete("https://api.github.com/repos/" + username + "/" + repo_name + "/contents/" + file_folder_name, auth=(username, password))
+
+# getting the status code from the response
+status_code = response.status_code
+
+# checking if the status code is 204
+if status_code == 204:
+    print("The file or folder was successfully deleted")
+else:
+    print("The file or folder was not deleted")
+
+
+# %%
