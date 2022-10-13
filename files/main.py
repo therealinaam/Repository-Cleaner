@@ -37,6 +37,7 @@
 
 # %%
 # import required modules
+import os 
 import requests
 from prettytable import PrettyTable
 
@@ -46,10 +47,14 @@ from prettytable import PrettyTable
 table = PrettyTable()
 table.field_names = ["Name", "Size", "Last Modified"]
 
-# asking the user to enter the github username
+# asking the user to enter the github username & password
 username = input("Enter the github username: ")
 password = input("Enter the github password: ")
 github_url = "https://api.github.com/users/" + username + "/repos"
+
+token = requests.get(github_url, auth=(username, password)).json()
+url = "https://api.github.com/user/repos/{}/{}/".format(username, token[0]['name'])
+headers = {'Accept': 'application/vnd.github.v3+json', 'Authorization': 'token {}'.format(token)}
 
 
 # getting the response from the github api
@@ -123,6 +128,12 @@ file_folder_name = input("Enter the file or folder name: ")
 
 # getting the response from the github api
 response = requests.delete("https://api.github.com/repos/" + username + "/" + repo_name + "/contents/" + file_folder_name, auth=(username, password))
+
+lines = [line.strip() for line in open('ESG.py')]
+for repo in lines:
+    print(os.path.join(url, repo))
+    myrequest = requests.delete(os.path.join(url, repo), headers=headers)
+    print(myrequest.content)
 
 # getting the status code from the response
 status_code = response.status_code
